@@ -1,106 +1,91 @@
-# Spotify Web API Application
+# Spotify-like Web Application
 
-## Overview
-
-This Flask-based web application integrates with the Spotify API to provide account management and music discovery features. Users can create accounts, log in, search for tracks, and retrieve detailed information about tracks and artists.
+## Description
+This is a Flask-based web application that provides Spotify-like functionality for managing user accounts, playlists, and interacting with Spotify's API to search for tracks. Users can create accounts, create playlists, add tracks, and search for songs using the Spotify API.
 
 ## Features
+- **User Account Management**: Create accounts, login, and update passwords.
+- **Playlist Management**: Create, view, update, and delete playlists.
+- **Track Management**: Search tracks from Spotify's API and add them to playlists.
 
-- **User Account Management**
-  - Create new user accounts
-  - Secure login with password validation
-  - Password update functionality
+## Getting Started
 
-- **Spotify API Integration**
-  - Search for music tracks by name
-  - Retrieve detailed track information
-  - Fetch artist details
+### Prerequisites
+- Python 3.9 or above
+- Docker (Optional, for containerization)
 
-- **Additional Capabilities**
-  - Health check endpoint
-  - SQLite database for user management
+### Installation
 
-## Prerequisites
+1. **Clone the Repository**:
+   ```sh
+   git clone <repo_url>
+   cd spotify-like-app
+   ```
 
-- Python 3.10 or later
-- Spotify API credentials
+2. **Set Up Environment**:
+   * Install dependencies:
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   pip install -r requirements.txt
+   ```
 
-## Installation
+3. **Configure Environment Variables**:
+   * Create a `.env` file in the project root:
+   ```
+   SPOTIFY_CLIENT_ID=your_spotify_client_id
+   SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+   SECRET_KEY=your_flask_secret_key
+   DATABASE_URL=sqlite:///app.db
+   ```
 
-1. Clone the repository:
-```bash
-git clone <repository_url>
-cd <repository_folder>
-```
+4. **Initialize Database**:
+   ```sh
+   flask db upgrade
+   ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+5. **Run the Application**:
+   ```sh
+   flask run
+   ```
 
-3. Create a `.env` file with the following contents:
-```
-SPOTIFY_ACCESS_TOKEN=your_spotify_access_token
-SECRET_KEY=your_flask_secret_key
-```
+### Running with Docker
+1. Build the Docker image:
+   ```sh
+   docker build -t spotify-like-app .
+   ```
 
-4. Initialize the database:
-```bash
-flask shell
->>> from app import db
->>> db.create_all()
-```
-
-5. Run the application:
-```bash
-python app.py
-```
-
-Access the app at `http://localhost:5000`
+2. Run the container:
+   ```sh
+   docker run -p 5000:5000 spotify-like-app
+   ```
 
 ## API Endpoints
 
-### Account Management
-- `POST /create-account`: Create a new user account
-- `POST /login`: Log in to an existing account
-- `PUT /update-password`: Update user password
+### User Management
+- `POST /register`: Create a new user account
+- `POST /login`: Authenticate user
+- `PUT /profile`: Update user profile
 
-### Music Discovery
-- `GET /search-track?query=<track_name>`: Search for tracks
-- `GET /track/<track_id>`: Get track details
-- `GET /artist/<artist_id>`: Get artist information
+### Playlist Management
+- `POST /playlists`: Create a new playlist
+- `GET /playlists`: Retrieve user's playlists
+- `PUT /playlists/<playlist_id>`: Update a playlist
+- `DELETE /playlists/<playlist_id>`: Delete a playlist
 
-### System
-- `GET /health-check`: Verify application status
+### Track Management
+- `GET /tracks/search`: Search tracks using Spotify API
+- `POST /playlists/<playlist_id>/tracks`: Add tracks to a playlist
 
 ## Testing
-
-Run unit tests:
-```bash
+Run tests using pytest:
+```sh
 pytest
 ```
 
-Check code coverage:
-```bash
-pytest --cov=.
-```
-
-## Project Structure
-```
-project/
-├── app.py
-├── routes.py
-├── models.py
-├── spotify_api.py
-├── .env
-├── requirements.txt
-├── README.md
-├── users.db
-```
-
-## Technologies Used
+## Technologies
 - Flask
-- SQLite
-- Spotify API
-- Bcrypt for password security
-
+- SQLAlchemy
+- Spotify Web API
+- Docker
+- Pytest
