@@ -1,27 +1,98 @@
 from flask import Blueprint, jsonify, request
-from .spotify_api import search_track
-from .models import SpotifyData, db
+from .spotify_api import spotify_request
+from .models import db, User
+from bcrypt import hashpw, gensalt, checkpw
 
-bp = Blueprint('routes', __name__)
+routes_bp = Blueprint('routes', __name__)
 
-@bp.route('/api/search-track', methods=['GET'])
-def api_search_track():
-    """
-    Search for a track by name using the Spotify API.
+# Health Check Route
+@routes_bp.route('/health-check', methods=['GET'])
+def health_check():
+    """Verify the app is running."""
+    return jsonify({"status": "running"}), 200
 
-    Query Parameters:
-    - `query` (str): The track name to search for.
+# Create Account Route
+@routes_bp.route('/create-account', methods=['POST'])
+def create_account():
+    """Create a new user account."""
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
 
-    Response:
-    - JSON with track details (id, name, artist, album).
-    """
+    if not username or not password:
+        return jsonify({"error": "Username and password cannot be null"}), 400
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({"error": "Username already exists"}), 400
+
+    salt = gensalt()
+    password_hash = hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+    new_user = User(username=username, salt=salt.decode('utf-8'), password_hash=password_hash)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "Account created successfully"}), 201
+
+# Login Route
+@routes_bp.route('/login', methods=['POST'])
+def login():
+    """Log in an existing user."""
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({"error": "Username and password cannot be null"}), 400
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "Username not registered"}), 401
+
+    if checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
+        return jsonify({"message": "Login successful"}), 200
+    else:
+        return jsonify({"error": "Incorrect password"}), 401
+
+# Update Password Route
+@routes_bp.route('/update-password', methods=['PUT'])
+def update_password():
+    """Update an existing user's password."""
+    data = request.json
+    username = data.get('username')
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+
+    if not username or not old_password or not new_password:
+        return jsonify({"error": "All fields are required"}), 400
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "Username not registered"}), 401
+
+    if not checkpw(old_password.encode('utf-8'), user.password_hash.encode('utf-8')):
+        return jsonify({"error": "Incorrect old password"}), 401
+
+    salt = gensalt()
+    new_password_hash = hashpw(new_password.encode('utf-8'), salt).decode('utf-8')
+
+    user.salt = salt.decode('utf-8')
+    user.password_hash = new_password_hash
+    db.session.commit()
+
+    return jsonify({"message": "Password updated successfully"}), 200
+
+# Spotify Search Track Route
+@routes_bp.route('/search-track', methods=['GET'])
+def search_track():
+    """Search for a track by name using Spotify API."""
     query = request.args.get('query')
     if not query:
         return jsonify({"error": "Query parameter is required"}), 400
 
-    data = search_track(query)
+    data = spotify_request("search", {"q": query, "type": "track", "limit": 1})
     if not data['tracks']['items']:
-        return jsonify({"error": "No results found"}), 404
+        return jsonify({"error": "No tracks found"}), 404
 
     track = data['tracks']['items'][0]
     return jsonify({
@@ -31,152 +102,28 @@ def api_search_track():
         "album": track['album']['name']
     })
 
-@bp.route('/api/tracks', methods=['GET'])
-def api_get_tracks():
-    """
-    Retrieve all tracks stored in the database.
+# Spotify Get Track Details Route
+@routes_bp.route('/track/<track_id>', methods=['GET'])
+def get_track_details(track_id):
+    """Get detailed information about a specific track."""
+    data = spotify_request(f"tracks/{track_id}")
+    return jsonify({
+        "id": data['id'],
+        "name": data['name'],
+        "artist": data['artists'][0]['name'],
+        "album": data['album']['name'],
+        "popularity": data['popularity']
+    })
 
-    Response:
-    - List of JSON objects with track details.
-    """
-    tracks = SpotifyData.query.all()
-    return jsonify([{
-        "id": track.track_id,
-        "name": track.track_name,
-        "artist": track.artist_name,
-        "album": track.album_name
-    } for track in tracks])
-
-@bp.route('/api/save-track', methods=['POST'])
-def api_save_track():
-    """
-    Save a track to the database.
-
-    Request Body:
-    - JSON object with track details (id, name, artist, album).
-
-    Response:
-    - Confirmation message.
-    """
-    data = request.get_json()
-    required_fields = ['id', 'name', 'artist', 'album']
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
-
-    new_track = SpotifyData(
-        track_id=data['id'],
-        track_name=data['name'],
-        artist_name=data['artist'],
-        album_name=data['album']
-    )
-    db.session.add(new_track)
-    db.session.commit()
-
-    return jsonify({"message": "Track saved successfully"}), 201
-
-@bp.route('/api/delete-track/<track_id>', methods=['DELETE'])
-def api_delete_track(track_id):
-    """
-    Delete a track from the database by track ID.
-
-    Path Parameter:
-    - `track_id` (str): The ID of the track to delete.
-
-    Response:
-    - Confirmation message.
-    """
-    track = SpotifyData.query.filter_by(track_id=track_id).first()
-    if not track:
-        return jsonify({"error": "Track not found"}), 404
-
-    db.session.delete(track)
-    db.session.commit()
-
-    return jsonify({"message": f"Track {track_id} deleted successfully"}), 200
-
-@bp.route('/api/update-track/<track_id>', methods=['PUT'])
-def api_update_track(track_id):
-    """
-    Update track information in the database.
-
-    Path Parameter:
-    - `track_id` (str): The ID of the track to update.
-
-    Request Body:
-    - JSON object with updated track details (name, artist, album).
-
-    Response:
-    - Confirmation message.
-    """
-    track = SpotifyData.query.filter_by(track_id=track_id).first()
-    if not track:
-        return jsonify({"error": "Track not found"}), 404
-
-    data = request.get_json()
-    track.track_name = data.get('name', track.track_name)
-    track.artist_name = data.get('artist', track.artist_name)
-    track.album_name = data.get('album', track.album_name)
-
-    db.session.commit()
-    return jsonify({"message": f"Track {track_id} updated successfully"}), 200
-
-@bp.route('/create-account', methods=['POST'])
-def create_account():
-    """
-    Route for creating a new user account.
-
-    Expected Request Format:
-    {
-        "username": "string",
-        "password": "string"
-    }
-
-    Response Format:
-    {
-        "message": "string"
-    }
-    """
-    # TODO: Implement account creation logic
-    return jsonify({"message": "Not implemented yet"}), 501
-
-
-@bp.route('/login', methods=['POST'])
-def login():
-    """
-    Route for logging in an existing user.
-
-    Expected Request Format:
-    {
-        "username": "string",
-        "password": "string"
-    }
-
-    Response Format:
-    {
-        "message": "string"
-    }
-    """
-    # TODO: Implement login logic
-    return jsonify({"message": "Not implemented yet"}), 501
-
-
-@bp.route('/update-password', methods=['PUT'])
-def update_password():
-    """
-    Route for updating a user's password.
-
-    Expected Request Format:
-    {
-        "username": "string",
-        "old_password": "string",
-        "new_password": "string"
-    }
-
-    Response Format:
-    {
-        "message": "string"
-    }
-    """
-    # TODO: Implement password update logic
-    return jsonify({"message": "Not implemented yet"}), 501
+# Spotify Get Artist Details Route
+@routes_bp.route('/artist/<artist_id>', methods=['GET'])
+def get_artist_details(artist_id):
+    """Get detailed information about an artist."""
+    data = spotify_request(f"artists/{artist_id}")
+    return jsonify({
+        "id": data['id'],
+        "name": data['name'],
+        "followers": data['followers']['total'],
+        "genres": data['genres']
+    })
 

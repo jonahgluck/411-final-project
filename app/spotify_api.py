@@ -1,17 +1,22 @@
 import requests
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+SPOTIFY_API_URL = "https://api.spotify.com/v1"
+SPOTIFY_ACCESS_TOKEN = os.getenv("SPOTIFY_ACCESS_TOKEN")
 
-SPOTIFY_API_BASE_URL = "https://api.spotify.com/v1"
-ACCESS_TOKEN = os.getenv("SPOTIFY_ACCESS_TOKEN")
+def spotify_request(endpoint, params=None):
+    """
+    Make a request to the Spotify API.
 
-def search_track(query):
-    """Search for a track using Spotify API."""
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-    params = {"q": query, "type": "track", "limit": 1}
-    response = requests.get(f"{SPOTIFY_API_BASE_URL}/search", headers=headers, params=params)
+    Args:
+        endpoint (str): Spotify API endpoint (e.g., 'search', 'tracks/{id}').
+        params (dict): Query parameters for the API request.
+
+    Returns:
+        dict: JSON response from the Spotify API.
+    """
+    headers = {"Authorization": f"Bearer {SPOTIFY_ACCESS_TOKEN}"}
+    response = requests.get(f"{SPOTIFY_API_URL}/{endpoint}", headers=headers, params=params)
     response.raise_for_status()
     return response.json()
 

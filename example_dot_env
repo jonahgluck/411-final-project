@@ -1,1 +1,3 @@
-SPOTIFY_ACCESS_TOKEN=<your_spotify_access_token>
+SPOTIFY_ACCESS_TOKEN=your_spotify_api_token
+SECRET_KEY=your_flask_secret_key
+
