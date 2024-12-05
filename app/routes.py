@@ -7,6 +7,10 @@ from .api_client import SpotifyAPI
 
 main = Blueprint('main', __name__)
 
+@main.route("/health-check", methods=['GET'])
+def health_check():
+    return jsonify({"status": "running"}), 200
+
 @main.route('/create-account', methods=['POST'])
 def create_account():
     """Handles the user account creation.

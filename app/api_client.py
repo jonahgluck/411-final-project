@@ -1,31 +1,30 @@
-import requests
 import os
+import requests
 
 class SpotifyAPI:
-    """ This is a class to interact with the Spotify Web API. 
-        This class provides provides functionality for searching tracks through Spotify's Search API. 
-    """
     BASE_URL = "https://api.spotify.com/v1"
-    API_KEY = os.getenv("SPOTIFY_API_KEY")
 
     @staticmethod
-    def search_tracks(query):
-
-    """Search for tracks on Spotify using a query. 
-        Sends a GET request to Spotify's Search API to fetch track details based on the given query
-        and returns the API's response in JSON format. 
-
-        Args: 
-            query (str): The search string to find matching tracks.
-        Returns:
-            dict: A dictionary containing the API's response. On success, this includes track details
-            such as titles, artists, and album information. On failure, the dictionary contains an error message.
-        Raises:
-            requests.exceptions.RequestException: Raised if a network error occurs or the API request fails.
-            
-    """
+    def search_tracks(query, api_key=None):
+        """
+        Search for tracks using Spotify's API.
         
-        headers = {"Authorization": f"Bearer {SpotifyAPI.API_KEY}"}
-        response = requests.get(f"{SpotifyAPI.BASE_URL}/search", headers=headers, params={"q": query, "type": "track"})
+        Args:
+            query (str): The search query (e.g., track name, artist).
+            api_key (str, optional): The Spotify API key. If not provided, it defaults to the value from the environment.
+        
+        Returns:
+            dict: JSON response from the Spotify API.
+        """
+        if api_key is None:
+            api_key = os.getenv("SPOTIFY_API_KEY")
+            if not api_key:
+                raise ValueError("API key is missing. Provide it as an argument or set the SPOTIFY_API_KEY environment variable.")
+
+        headers = {"Authorization": f"Bearer {api_key}"}
+        params = {"q": query, "type": "track"}
+
+        response = requests.get(f"{SpotifyAPI.BASE_URL}/search", headers=headers, params=params)
+        response.raise_for_status()
         return response.json()
 
