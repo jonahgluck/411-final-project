@@ -134,7 +134,4 @@ curl -X GET "http://127.0.0.1:5000/track/{track_id}"
 ```
 Replace `{track_id}` with a valid Spotify track ID.
 
-## Notes
-- Ensure you have the necessary dependencies installed
-- The application uses SQLite for storing user credentials
-- Passwords are securely hashed using bcrypt
+
