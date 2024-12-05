@@ -19,7 +19,7 @@ This is a Flask-based web application that provides Spotify-like functionality f
 1. **Clone the Repository**:
    ```sh
    git clone <repo_url>
-   cd spotify-like-app
+   cd 411-final-project
    ```
 
 2. **Set Up Environment**:
@@ -33,10 +33,8 @@ This is a Flask-based web application that provides Spotify-like functionality f
 3. **Configure Environment Variables**:
    * Create a `.env` file in the project root:
    ```
-   SPOTIFY_CLIENT_ID=your_spotify_client_id
-   SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+   SPOTIFY_ACCESS_TOKEN=your_spotify_api_token
    SECRET_KEY=your_flask_secret_key
-   DATABASE_URL=sqlite:///app.db
    ```
 
 4. **Initialize Database**:
