@@ -86,7 +86,7 @@ Run tests using pytest:
 ```sh
 pytest
 ```
-
+Smoke test and pytest tests passing
 ![tests passing](./test.png)
 
 ## Technologies
