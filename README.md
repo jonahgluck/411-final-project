@@ -87,7 +87,7 @@ Run tests using pytest:
 pytest
 ```
 
-![tests passing](./test.png")
+![tests passing](./test.png)
 
 ## Technologies
 - Flask
