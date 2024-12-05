@@ -92,3 +92,47 @@ pytest
 - Spotify Web API
 - Docker
 - Pytest
+
+## Example Curl Commands
+
+### Create Accounts
+```bash
+curl -X POST http://127.0.0.1:5000/create-account -H "Content-Type: application/json" -d '{"username": "accountN1", "password": "CS411"}'
+```
+
+### Log In
+```bash
+curl -X POST http://127.0.0.1:5000/login -H "Content-Type: application/json" -d '{"username": "accountN1", "password": "CS411"}'
+```
+
+### Update Password
+```bash
+curl -X PUT http://127.0.0.1:5000/update-password -H "Content-Type: application/json" -d '{"username": "accountN1", "old_password": "CS411", "new_password": "ILOVECS411"}'
+```
+
+## Optional: Database Visualization
+
+To view and manage the SQLite database (`users.db`):
+1. Install the following VS Code extensions:
+   - SQLite
+   - SQLite Viewer
+   - SQLTools SQLite
+2. Open `users.db` in VS Code to view and manage the users table
+
+## Spotify API Integration (Optional)
+
+### Search Track
+```bash
+curl -X GET "http://127.0.0.1:5000/search-track?query=Imagine"
+```
+
+### Get Track Details
+```bash
+curl -X GET "http://127.0.0.1:5000/track/{track_id}"
+```
+Replace `{track_id}` with a valid Spotify track ID.
+
+## Notes
+- Ensure you have the necessary dependencies installed
+- The application uses SQLite for storing user credentials
+- Passwords are securely hashed using bcrypt
