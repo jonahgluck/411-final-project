@@ -51,7 +51,7 @@ Generate a spotify api key.
 
 5. **Run the Application**:
    ```sh
-   flask run
+   python3 run.py
    ```
 
 ### Running with Docker
