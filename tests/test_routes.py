@@ -33,6 +33,6 @@ def test_health(client):
         Asserts: 
             - The response contains a JSON object with '{"status": "Running"}'.
     """
-    response = client.get('/health')
-    assert response.json == {"status": "Running"}
+    response = client.get('/health-check')
+    assert response.json == {"status": "running"}
 
