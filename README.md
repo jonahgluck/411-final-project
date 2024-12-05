@@ -43,7 +43,6 @@ Generate a spotify api key.
 
 4. **Initialize Database**:
    ```sh
-   flask db upgrade
    flask shell
    >>> from models import db
    >>> db.create_all()
