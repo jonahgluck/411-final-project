@@ -50,12 +50,12 @@ Remove any existing db under the ``instance`` directory. Then recreate the db wi
 ### Running with Docker
 1. Build the Docker image:
    ```sh
-   docker build -t spotify-like-app .
+   docker build -t 411-final-project .
    ```
 
 2. Run the container:
    ```sh
-   docker run -p 5000:5000 spotify-like-app
+   docker run -p 5000:5000 411-final-project
    ```
 
 ## Testing
