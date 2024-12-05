@@ -40,13 +40,11 @@ This is a Flask-based web application that provides Spotify-like functionality f
    ```
 
 4. **Initialize Database**:
-   ```sh
-   flask shell
-   >>> from models import db
-   >>> db.create_all()
-   ```
+Remove any existing db under the ``instance`` directory. Then recreate the db with the same name ``spotify.db`` under that directory.
 
-5. **Run the Application**:
+``instance/spotify.db`` should now exist.
+
+6. **Run the Application**:
    ```sh
    python3 run.py
    ```
@@ -61,23 +59,6 @@ This is a Flask-based web application that provides Spotify-like functionality f
    ```sh
    docker run -p 5000:5000 spotify-like-app
    ```
-
-## API Endpoints
-
-### User Management
-- `POST /register`: Create a new user account
-- `POST /login`: Authenticate user
-- `PUT /profile`: Update user profile
-
-### Playlist Management
-- `POST /playlists`: Create a new playlist
-- `GET /playlists`: Retrieve user's playlists
-- `PUT /playlists/<playlist_id>`: Update a playlist
-- `DELETE /playlists/<playlist_id>`: Delete a playlist
-
-### Track Management
-- `GET /tracks/search`: Search tracks using Spotify API
-- `POST /playlists/<playlist_id>/tracks`: Add tracks to a playlist
 
 ## Testing
 Run tests using pytest:
@@ -120,7 +101,7 @@ To view and manage the SQLite database (`users.db`):
    - SQLTools SQLite
 2. Open `users.db` in VS Code to view and manage the users table
 
-## Spotify API Integration (Optional)
+## API Endpoints
 
 1. Health Check Route
 - **Route Name and Path**: `/health-check`
