@@ -44,31 +44,32 @@ def login():
         return jsonify({"message": "Login successful!"}), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
-@main.route('/update-password', methods=['POST'])
+@main.route('/update-password', methods=['PUT'])
 def update_password():
-    """Updates a user's password. 
-    
-        Validates the old password and updates it with a new hashed password.
-        
-        Returns: 
-            Response: JSON with a success message (200) if the update is successful, or an error
-           message (401) if validation fails.
     """
-    data = request.json
-    user = User.query.filter_by(username=data['username']).first()
-    if user and check_password_hash(user.password_hash, data['old_password']):
-        user.set_password(data['new_password'])
-        db.session.commit()
-        return jsonify({"message": "Password updated successfully!"}), 200
-    return jsonify({"message": "Invalid credentials"}), 401
+    Updates a user's password.
 
-@main.route('/health', methods=['GET'])
-def health():
-    """Checks if the application is running.
-        Returns: 
-            Response: JSON with a status message and HTTP status code 200.
+    Validates the old password and updates it with a new hashed password.
+
+    Returns:
+        Response: JSON with a success message (200) if the update is successful, or an error
+        message (401) if validation fails.
     """
-    return jsonify({"status": "Running"}), 200
+    try:
+        data = request.json
+        user = User.query.filter_by(username=data['username']).first()
+
+        if user and check_password_hash(user.password_hash, data['old_password']):
+            user.set_password(data['new_password'])
+            db.session.commit()
+            return jsonify({"message": "Password updated successfully!"}), 200
+
+        return jsonify({"message": "Invalid credentials"}), 401
+    except KeyError as e:
+        return jsonify({"error": f"Missing required field: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
 
 @main.route('/playlists', methods=['POST'])
 def create_playlist():
