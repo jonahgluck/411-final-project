@@ -87,6 +87,8 @@ Run tests using pytest:
 pytest
 ```
 
+![tests passing](./test.png")
+
 ## Technologies
 - Flask
 - SQLAlchemy
