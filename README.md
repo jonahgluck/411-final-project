@@ -3,6 +3,8 @@
 ## Description
 This is a Flask-based web application that provides Spotify-like functionality for managing user accounts, playlists, and interacting with Spotify's API to search for tracks. Users can create accounts, create playlists, add tracks, and search for songs using the Spotify API.
 
+Generate a spotify api key.
+
 ## Features
 - **User Account Management**: Create accounts, login, and update passwords.
 - **Playlist Management**: Create, view, update, and delete playlists.
