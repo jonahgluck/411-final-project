@@ -42,6 +42,9 @@ This is a Flask-based web application that provides Spotify-like functionality f
 4. **Initialize Database**:
    ```sh
    flask db upgrade
+   flask shell
+   >>> from models import db
+   >>> db.create_all()
    ```
 
 5. **Run the Application**:
