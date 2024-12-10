@@ -1,7 +1,24 @@
+""" 
+This model demonstrates how to perform asynchrynous account management tasks using curl commands
+and a REST API. 
+
+The operations include:
+1. Creating a new account
+2. Logging into the account
+3. Updating the account password
+Asynchronous execution is implemented using the 'asyncio' library.
+"""
+
 import asyncio
 
+
 async def run_curl(command):
-    """Run a curl command asynchronously."""
+    """Run a curl command asynchronously.
+       Args: 
+           command (str): The curl command to be executed
+        Returns:
+            None: Prints the success or failure of the command, along with its output or error.
+    """
     process = await asyncio.create_subprocess_shell(
         command,
         stdout=asyncio.subprocess.PIPE,
@@ -16,6 +33,14 @@ async def run_curl(command):
         print(f"Error:\n{stderr.decode()}")
 
 async def main():
+    """Run a sequence of curl commands for managing an account via a REST API.
+        The sequence performs the following steps:
+        1. Creates an account
+        2. Logs into the created account
+        3. Updates the account password
+        Returns:
+            None: Outputs the results of each operation to the console.
+    """
     # Step 1: Create Account
     create_account_cmd = (
         'curl -X POST http://127.0.0.1:5000/create-account '
